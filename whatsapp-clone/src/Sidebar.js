@@ -8,26 +8,32 @@ import { SearchOutlined } from '@material-ui/icons'
 
 import SidebarChat from './SidebarChat'
 import db from './firebase'
+import { useStateValue } from './StateProvider'
 
 function Sidebar() {
 
     const [rooms, setRooms ] = useState([])
+    const [{ user }, dispatch] = useStateValue()
 
     useEffect(() => {
-        db.collection('rooms').onSnapshot(snapshot => (
+        const unsubscribe = db.collection('rooms').onSnapshot(snapshot => (
             setRooms(snapshot.docs.map(doc => 
                 ({
                     id: doc.id,
                     data: doc.data()
                 })
-                ))
+            ))
         ))
+
+        return () => {
+            unsubscribe();
+        }
     }, [])
 
     return (
         <div className="sidebar">
             <div className="sidebar_header">
-                <Avatar />
+                <Avatar src={user?.photoURL}/>
                 <div className="sidebar_headerRight">
                     <IconButton>
                         <DonutLargeIcon />
